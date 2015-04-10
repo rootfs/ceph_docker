@@ -31,7 +31,7 @@ do
 	ceph osd create
 	ceph-osd -i ${i} --mkfs --mkkey
 	ceph auth add osd.${i} osd 'allow *' mon 'allow rwx' -i /var/lib/ceph/osd/ceph-${i}/keyring
-	ceph osd crush add ${i} 1 root=default host=cephbox
+	ceph osd crush add ${i} 1 root=default host=${MASTER}
 	ceph-osd -i ${i} -k /var/lib/ceph/osd/ceph-${i}/keyring
 done
 
@@ -57,6 +57,8 @@ ceph-deploy mds create ${MASTER}
 ceph osd pool create cephfs_data 4
 ceph osd pool create cephfs_metadata 4
 ceph fs new cephfs cephfs_metadata cephfs_data
+
+service ceph restart
 
 ceph osd pool create kube 4
 
