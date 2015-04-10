@@ -62,11 +62,11 @@ ceph health
 
 # create ceph fs
 ceph-deploy mds create ${MASTER}
-ceph osd pool create cephfs_data 16
-ceph osd pool create cephfs_metadata 16
+ceph osd pool create cephfs_data 4
+ceph osd pool create cephfs_metadata 4
 ceph fs new cephfs cephfs_metadata cephfs_data
 
-ceph osd pool create kube 16
+ceph osd pool create kube 4
 
 ps -ef |grep ceph
 
