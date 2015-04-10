@@ -35,21 +35,13 @@ do
 	ceph-osd -i ${i} -k /var/lib/ceph/osd/ceph-${i}/keyring
 done
 
-#mkdir -p /var/lib/ceph/mds
-#cat >> /etc/ceph.conf <<EOF 
-#[mds.0]  
-#log file = /var/lib/ceph/mds/mds.log  
-#chdir = ""  
-#host = ${MASTER}  
-#EOF
-
 set -e 
 #ceph-deploy --overwrite-conf admin ${CLUSTER}
 
 #start ceph on all NODES  
 service ceph restart
 
-#ceph-mds -m ${MASTER} -i 1
+ps -ef |grep ceph
 
 #see if we are ready to go  
 #osd tree should show all osd are up  
