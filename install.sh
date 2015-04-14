@@ -9,5 +9,3 @@ cat ~/.ssh/id_rsa.pub |awk '{print $1, $2, "Generated"}' >> ~/.ssh/authorized_ke
 
 yum install  -y -q ceph-deploy epel-release 
 yum install -y ceph
-
-
