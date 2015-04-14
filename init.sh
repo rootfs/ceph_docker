@@ -41,6 +41,10 @@ ceph osd pool create cephfs_metadata 4
 ceph fs new cephfs cephfs_metadata cephfs_data
 ceph-deploy --overwrite-conf mds create ${MASTER}
 
+#create pool for kubernets test
+ceph osd pool create kube 4
+rbd create foo --size 10 --pool kube
+
 ps -ef |grep ceph
 ceph osd dump
 sleep 120
