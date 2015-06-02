@@ -4,6 +4,12 @@ set -x
 
 rm -f /etc/ceph/*
 
+pkill -9 ceph-mon
+pkill -9 ceph-osd
+pkill -9 ceph-mds
+
+mkdir -p /home/etc/ceph
+mkdir -p /home/etc/ceph
 MASTER=`hostname -s`
 
 ip=$(ip -4 -o a | grep eth0 | awk '{print $4}' | cut -d'/' -f1)
