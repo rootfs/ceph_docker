@@ -51,6 +51,16 @@ ceph-deploy --overwrite-conf mds create ${MASTER}
 ceph osd pool create kube 4
 rbd create foo --size 10 --pool kube
 
+# create a known keyring
+cat > /etc/ceph/ceph.client.kube.keyring <<EOF
+[client.kube]
+        key = AQAMgXhVwBCeDhAA9nlPaFyfUSatGD4drFWDvQ==
+        caps mds = "allow rwx"
+        caps mon = "allow rwx"
+        caps osd = "allow rwx"
+EOF
+ceph auth import -i /etc/ceph/ceph.client.kube.keyring
+
 ps -ef |grep ceph
 ceph osd dump
 sleep 120
