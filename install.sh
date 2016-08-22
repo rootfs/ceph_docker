@@ -1,6 +1,6 @@
 #!/bin/sh
 yum update -y -v
-rpm -Uvh http://ceph.com/rpm/rhel6/noarch/ceph-release-1-0.el6.noarch.rpm
+rpm -Uvh http://ceph.com/rpm/el7/noarch/ceph-release-1-0.el7.noarch.rpm
 yum install   python-itsdangerous python-werkzeug python-jinja2 python-flask  -y 
 yum install   openssh openssh-server openssh-clients hostname -y -q
 ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''

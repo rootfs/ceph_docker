@@ -2,22 +2,27 @@
 #set -e
 set -x
 
-rm -f /etc/ceph/*
-
 pkill -9 ceph-mon
 pkill -9 ceph-osd
-pkill -9 ceph-mds
 
-mkdir -p /home/etc/ceph
-mkdir -p /home/etc/ceph
+mkdir -p /etc/ceph
+mkdir -p /etc/ceph
+rm -rf /etc/ceph/*
+rm -rf /var/lib/ceph/osd/ceph-0/
+rm -rf /var/run/ceph
+
 MASTER=`hostname -s`
 
 ip=$(ip -4 -o a | grep eth0 | awk '{print $4}' | cut -d'/' -f1)
 echo "$ip $MASTER" >> /etc/hosts
 
+# purge
+ceph-deploy purgedata ${MASTER}
+ceph-deploy forgetkeys
+
 #create ceph cluster
 ceph-deploy --overwrite-conf new ${MASTER}  
-ceph-deploy --overwrite-conf mon create-initial ${MASTER}
+ceph-deploy  mon create-initial 
 ceph-deploy --overwrite-conf mon create ${MASTER}
 ceph-deploy  gatherkeys ${MASTER}  
 
@@ -27,8 +32,7 @@ echo "osd pool default size = 1" >> /etc/ceph/ceph.conf
 echo "osd pool default pgp num = 8" >> /etc/ceph/ceph.conf
 echo "osd pool default pg num = 8" >> /etc/ceph/ceph.conf
 
-/sbin/service ceph -c /etc/ceph/ceph.conf stop mon.${MASTER}
-/sbin/service ceph -c /etc/ceph/ceph.conf start mon.${MASTER}
+/sbin/service ceph -c /etc/ceph/ceph.conf restart mon.${MASTER}
 
 ceph osd pool set rbd size 1
 
@@ -40,12 +44,6 @@ ceph-osd -i 0 -k /var/lib/ceph/osd/ceph-0/keyring
 
 #see if we are ready to go  
 ceph osd tree  
-
-# create ceph fs
-ceph osd pool create cephfs_data 4
-ceph osd pool create cephfs_metadata 4
-ceph fs new cephfs cephfs_metadata cephfs_data
-ceph-deploy --overwrite-conf mds create ${MASTER}
 
 #create pool for kubernets test
 ceph osd pool create kube 4
