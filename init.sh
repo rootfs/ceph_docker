@@ -34,7 +34,7 @@ ceph-deploy --overwrite-conf mon create ${MASTER} #systemctl could fail!
 restart_mon
 ceph-deploy  gatherkeys ${MASTER}  
 
-ceph --connect-timeout=25 --cluster=ceph --name mon. --keyring=/var/lib/ceph/mon/ceph-rootfs-dev/keyring auth get client.admin >  /etc/ceph/ceph.client.admin.keyring
+ceph --connect-timeout=25 --cluster=ceph --name mon. --keyring=/var/lib/ceph/mon/ceph-${MASTER}/keyring auth get client.admin >  /etc/ceph/ceph.client.admin.keyring
 echo "osd crush chooseleaf type = 0" >> /etc/ceph/ceph.conf
 echo "osd journal size = 100" >> /etc/ceph/ceph.conf
 echo "osd pool default size = 1" >> /etc/ceph/ceph.conf
@@ -70,6 +70,15 @@ ceph auth import -i /etc/ceph/ceph.client.kube.keyring
 
 ps -ef |grep ceph
 ceph osd dump
+
+# ceph fs
+ceph osd pool create fs_data 4
+ceph osd pool create fs_meta 1
+ceph fs new myfs fs_meta fs_data
+mkdir  /var/lib/ceph/mds/ceph-${MASTER}
+ceph auth get-or-create mds.${MASTER} osd 'allow rwx' mds 'allow' mon 'allow profile mds' -o /var/lib/ceph/mds/ceph-${MASTER}/keyring
+ceph-mds -m ${MASTER}:6789 -i ${MASTER}
+
 sleep 120
 
 ceph -w
