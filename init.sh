@@ -2,6 +2,13 @@
 #set -e
 set -x
 
+function restart_mon {
+   pkill -9  ceph-mon
+   sleep 3
+   ceph-mon -f --cluster ceph --id ${MASTER}  &
+   sleep 3
+}
+
 pkill -9 ceph-mon
 pkill -9 ceph-osd
 
@@ -23,16 +30,18 @@ ceph-deploy forgetkeys
 #create ceph cluster
 ceph-deploy --overwrite-conf new ${MASTER}  
 ceph-deploy  mon create-initial 
-ceph-deploy --overwrite-conf mon create ${MASTER}
+ceph-deploy --overwrite-conf mon create ${MASTER} #systemctl could fail!
+restart_mon
 ceph-deploy  gatherkeys ${MASTER}  
 
+ceph --connect-timeout=25 --cluster=ceph --name mon. --keyring=/var/lib/ceph/mon/ceph-rootfs-dev/keyring auth get client.admin >  /etc/ceph/ceph.client.admin.keyring
 echo "osd crush chooseleaf type = 0" >> /etc/ceph/ceph.conf
 echo "osd journal size = 100" >> /etc/ceph/ceph.conf
 echo "osd pool default size = 1" >> /etc/ceph/ceph.conf
 echo "osd pool default pgp num = 8" >> /etc/ceph/ceph.conf
 echo "osd pool default pg num = 8" >> /etc/ceph/ceph.conf
 
-/sbin/service ceph -c /etc/ceph/ceph.conf restart mon.${MASTER}
+restart_mon
 
 ceph osd pool set rbd size 1
 
