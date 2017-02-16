@@ -1,5 +1,6 @@
 DIR=/db
-docker build -t centos_ceph_pkg .
+IMAGE=centos_ceph
+docker build -t ${IMAGE} .
 mkdir -p ${DIR}/disks
 
 umount /tmp/ceph_disk0
@@ -9,4 +10,4 @@ mkdir -p /tmp/ceph_disk0
 mount -t xfs -o loop ${DIR}/disks/d0 /tmp/ceph_disk0
 
 rm -rf /etc/ceph/*
-docker run --privileged --net=host -i -t  -v /tmp/ceph_disk0:/var/lib/ceph/osd/ceph-0 -v /etc/ceph:/etc/ceph -t centos_ceph_pkg /bin/bash /init.sh
+docker run --privileged --net=host -i -t  -v /tmp/ceph_disk0:/var/lib/ceph/osd/ceph-0 -v /etc/ceph:/etc/ceph -t ${IMAGE} /bin/bash /init.sh
